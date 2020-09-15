@@ -1,0 +1,56 @@
+const EventEmitter = require('events');
+const { Art, connection } = require('../data/db');
+
+class ArtService extends EventEmitter {
+	constructor() {
+		super();
+		this.events = {
+			GET_ALL_ARTS: 'GET_ALL_ARTS',
+			GET_ART_BY_ID: 'GET_ART_BY_ID',
+			CREATE_ART: 'CREATE_ART'
+		};
+	}
+	getAllArts() {
+		Art.find({}, (err, allArts) => {
+			if(allArts == null) {
+				this.emit(this.events.GET_ALL_ARTS, -1);
+				return;
+			}
+			if(err) {
+				if(err.message.indexOf('Cast to ObjectId failed') !== -1) {
+					this.emit(this.events.GET_ALL_ARTS, -1);
+					return;
+				}
+				this.emit(this.events.GET_ALL_ARTS, 1);
+				return;
+			}
+			this.emit(this.events.GET_ALL_ARTS, allArts);
+		});
+	}
+
+	getArtById(id) {
+		Art.findById(id, (err, art) => {
+			if(art == null) {
+				this.emit(this.events.GET_ART_BY_ID, -1);
+				return;
+			}
+			if(err) {
+				if(err.message.indexOf('Cast to ObjectId failed') !== -1) {
+					this.emit(this.events.GET_ART_BY_ID, -1);
+					return;
+				}
+				this.emit(this.events.GET_ART_BY_ID, 1);
+				return;
+			}
+			//else if(typeof art == 'undefined') { this.emit(this.events.GET_ART_BY_ID, 1) }
+			this.emit(this.events.GET_ART_BY_ID, art);
+		});
+	}
+
+	createArt(art) {
+		// Your implementation goes here
+		// Should emit a CREATE_ART event when the data is available
+	}
+}
+
+module.exports = ArtService;

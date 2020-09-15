@@ -1,0 +1,41 @@
+const express = require('express');
+const bodyParser = require('body-parser');
+const router = express.Router();
+const port = 3000;
+const app = express();
+
+/* Services */
+const ArtService = require('./services/artService');
+
+/* ROUTES */
+
+/* Arts */
+
+router.get('/arts', (request, response) => {
+	const artService = new ArtService();
+	artService.on('GET_ALL_ARTS', allArts => {
+		if(allArts === -1) { return response.status(404).send(); }
+		else if(allArts === 1) { return response.status(500).send(); }
+		return response.json(allArts);
+	});
+	artService.getAllArts();
+});
+
+router.get('/arts/:id', (request, response) => {
+	const { id } = request.params;
+	const artService = new ArtService();
+	artService.on('GET_ART_BY_ID', art => {
+		if(art === -1) { return response.status(404).send(); }
+		else if(art === 1) { return response.status(500).send(); }
+		return response.json(art);
+	});
+	artService.getArtById(id);
+});
+
+/* Configs */
+app.use(bodyParser.json());
+app.use('/api', router);
+
+app.listen(port || process.env.PORT, () => {
+	console.log(`Listening on port: ${port}`);
+});
